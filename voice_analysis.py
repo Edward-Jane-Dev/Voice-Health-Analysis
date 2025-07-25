@@ -27,7 +27,8 @@ def extract_pitch(y, sr):
 def extract_energy(y):
     """
     Calculate the energy of the audio signal. 
-    Use the RMS energy formula.
+    Use RMS (Root Mean Square) to estimate energy.
+    Filters out very low energy frames to avoid noise.
     """
     frame_length = 2048
     hop_length = 512
