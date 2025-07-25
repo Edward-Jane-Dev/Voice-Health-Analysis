@@ -27,8 +27,13 @@ def extract_energy(y):
     Calculate the energy of the audio signal. 
     Use the RMS energy formula.
     """
-    energy = np.sum(y**2) / len(y)
-    return float(energy)
+    frame_length = 2048
+    hop_length = 512
+    rms = librosa.feature.rms(y=y, frame_length=frame_length, hop_length=hop_length)
+    rms_nonzero = rms[rms > 0]
+    if len(rms_nonzero) == 0:
+        return 0.0
+    return float(np.mean(rms_nonzero))
 
 def extract_speaking_rate(y, sr):
     """
