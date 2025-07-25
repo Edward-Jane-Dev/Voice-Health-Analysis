@@ -18,6 +18,11 @@ def extract_pitch(y, sr):
             pitch_values.append(pitch)
     return float(np.median(pitch_values)) if pitch_values else None
 
+def extract_energy(y):
+    # Calculate the energy of the audio signal
+    energy = np.sum(y**2) / len(y)
+    return float(energy)
+
 def analyze_voice(audio_file):
     try:
         # Load the audio file
@@ -27,13 +32,15 @@ def analyze_voice(audio_file):
 
         # Extract features
         pitch = extract_pitch(y, sr)
+        energy = extract_energy(y)
         
         # Prepare the result
         result = {
             "timestamp": datetime.now().isoformat(),   
             "file": audio_file,
             "features": {
-                "pitch": pitch
+                "pitch": pitch,
+                "energy": energy,
             }
         }
         
