@@ -11,7 +11,11 @@ speaking_rate_thresholds = [120, 220]  # syllables per minute
 
 
 def extract_pitch(y, sr):
-    """Estimate the pitch of the audio signal using librosa piptrack."""
+    """
+    Estimate the pitch of the audio signal using librosa piptrack.
+    Filters out pitches that are too low or too high, and those with low magnitudes.
+    Returns the median pitch value if available, otherwise None.
+    """
     pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
     pitch_values = []
     magnitude_threshold = np.percentile(magnitudes, 75)  # filter out low magnitude pitches
