@@ -8,6 +8,7 @@ import numpy as np
 
 
 def extract_pitch(y, sr):
+    """Estimate the pitch of the audio signal using librosa piptrack."""
     pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
     pitch_values = []
     for i in range(pitches.shape[1]):
@@ -19,9 +20,17 @@ def extract_pitch(y, sr):
     return float(np.median(pitch_values)) if pitch_values else None
 
 def extract_energy(y):
-    # Calculate the energy of the audio signal
+    """Calculate the energy of the audio signal. Use the RMS energy formula."""
     energy = np.sum(y**2) / len(y)
     return float(energy)
+
+def extract_speaking_rate(y, sr):
+    """Calculate the speaking rate in words per minute. Uses onset detection to estimate the start of syllables."""
+    onset_env = librosa.onset.onset_strength(y=y, sr=sr)
+    peaks = librosa.onset.onset_detect(onset_envelope=onset_env, sr=sr, units='time')
+    duration_seconds = len(y) / sr
+    speaking_rate = len(peaks) / duration_seconds * 60   # peaks per minute
+    return float(speaking_rate)
 
 def analyze_voice(audio_file):
     try:
@@ -33,6 +42,7 @@ def analyze_voice(audio_file):
         # Extract features
         pitch = extract_pitch(y, sr)
         energy = extract_energy(y)
+        speaking_rate = extract_speaking_rate(y, sr)
         
         # Prepare the result
         result = {
@@ -41,6 +51,7 @@ def analyze_voice(audio_file):
             "features": {
                 "pitch": pitch,
                 "energy": energy,
+                "speaking_rate": speaking_rate
             }
         }
         
