@@ -29,8 +29,8 @@ def extract_energy(y):
     """
     frame_length = 2048
     hop_length = 512
-    rms = librosa.feature.rms(y=y, frame_length=frame_length, hop_length=hop_length)
-    rms_nonzero = rms[rms > 0]
+    rms = librosa.feature.rms(y=y, frame_length=frame_length, hop_length=hop_length)[0]
+    rms_nonzero = rms[rms > 0.01]
     if len(rms_nonzero) == 0:
         return 0.0
     return float(np.mean(rms_nonzero))
@@ -81,7 +81,7 @@ def analyze_voice(audio_file):
         elif pitch > 250:
             indicators.append("Pitch is above normal, indicating possible excitement or anxiety.")
 
-        if energy < 0.01:
+        if energy < 0.02:
             indicators.append("Energy level is low, indicating possible fatigue or lack of engagement.")
         elif energy > 0.1:
             indicators.append("Energy level is high, indicating possible excitement or engagement.")
@@ -94,7 +94,7 @@ def analyze_voice(audio_file):
         analysis = []
 
         # Analyze the features and provide health indicators
-        if pitch < 85 and energy < 0.01:
+        if pitch < 85 and energy < 0.02:
             analysis.append("The voice indicates a strong possibility of fatigue or depression due to low pitch and energy levels.")
 
         elif pitch > 250 and energy > 0.1:
@@ -108,7 +108,7 @@ def analyze_voice(audio_file):
                 analysis.append("The voice indicates possible fatigue or depression due to low pitch.")
             if pitch > 250:
                 analysis.append("The voice indicates possible excitement or anxiety due to high pitch.")
-            if energy < 0.01:
+            if energy < 0.02:
                 analysis.append("The voice indicates possible fatigue or lack of engagement due to low energy.")
             if energy > 0.1:
                 analysis.append("The voice indicates possible excitement or engagement due to high energy levels.")
