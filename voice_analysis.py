@@ -16,7 +16,7 @@ def extract_pitch(y, sr):
         pitch = pitches[index, i]
         if 50 < pitch < 400: # typical human voice range
             pitch_values.append(pitch)
-    return np.median(pitch_values) if pitch_values else None
+    return float(np.median(pitch_values)) if pitch_values else None
 
 def analyze_voice(audio_file):
     try:
