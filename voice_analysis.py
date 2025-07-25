@@ -5,7 +5,9 @@ import json
 import numpy as np
 import noisereduce as nr
 
-
+pitch_thresholds = [85,255]  # typical human voice pitch range in Hz
+energy_thresholds = [0.02, 0.1]  # normalized energy levels
+speaking_rate_thresholds = [120, 220]  # syllables per minute
 
 
 def extract_pitch(y, sr):
@@ -75,46 +77,46 @@ def analyze_voice(audio_file):
         speaking_rate = extract_speaking_rate(y, sr)
         
         indicators = []
-        
-        if pitch < 85:
+
+        if pitch < pitch_thresholds[0]:
             indicators.append("Pitch is below normal, indicating possible fatigue or depression.")
-        elif pitch > 250:
+        elif pitch > pitch_thresholds[1]:
             indicators.append("Pitch is above normal, indicating possible excitement or anxiety.")
 
-        if energy < 0.02:
-            indicators.append("Energy level is low, indicating possible fatigue or lack of engagement.")
-        elif energy > 0.1:
-            indicators.append("Energy level is high, indicating possible excitement or engagement.")
+        if energy < energy_thresholds[0]:
+            indicators.append("Energy level is low, indicating possible fatigue.")
+        elif energy > energy_thresholds[1]:
+            indicators.append("Energy level is high, indicating possible excitement.")
 
-        if speaking_rate < 120:
+        if speaking_rate < speaking_rate_thresholds[0]:
             indicators.append("Speaking rate is below normal, indicating possible boredom or fatigue.")
-        elif speaking_rate > 220:
+        elif speaking_rate > speaking_rate_thresholds[1]:
             indicators.append("Speaking rate is above normal, indicating possible excitement or anxiety.")
 
         analysis = []
 
         # Analyze the features and provide health indicators
-        if pitch < 85 and energy < 0.02:
+        if pitch < pitch_thresholds[0] and energy < energy_thresholds[0]:
             analysis.append("The voice indicates a strong possibility of fatigue or depression due to low pitch and energy levels.")
 
-        elif pitch > 250 and energy > 0.1:
+        elif pitch > pitch_thresholds[1] and energy > energy_thresholds[1]:
             analysis.append("The voice indicates a strong possibility of excitement or anxiety due to high pitch and energy levels.")
 
-        elif speaking_rate > 220 and energy < 0.02:
+        elif speaking_rate > speaking_rate_thresholds[1] and energy < energy_thresholds[0]:
             analysis.append("The voice indicates a strong possibility of anxiety or stress due to high speaking rate and low energy.")
         
         if not analysis: # If no specific analysis was made, check individual features
-            if pitch < 85:
+            if pitch < pitch_thresholds[0]:
                 analysis.append("The voice indicates possible fatigue or depression due to low pitch.")
-            if pitch > 250:
+            if pitch > pitch_thresholds[1]:
                 analysis.append("The voice indicates possible excitement or anxiety due to high pitch.")
-            if energy < 0.02:
-                analysis.append("The voice indicates possible fatigue or lack of engagement due to low energy.")
-            if energy > 0.1:
-                analysis.append("The voice indicates possible excitement or engagement due to high energy levels.")
-            if speaking_rate < 120:
+            if energy < energy_thresholds[0]:
+                analysis.append("The voice indicates possible fatigue due to low energy.")
+            if energy > energy_thresholds[1]:
+                analysis.append("The voice indicates possible excitement due to high energy levels.")
+            if speaking_rate < speaking_rate_thresholds[0]:
                 analysis.append("The voice indicates possible boredom or fatigue due to low speaking rate.")
-            if speaking_rate > 220:
+            if speaking_rate > speaking_rate_thresholds[1]:
                 analysis.append("The voice indicates possible excitement or anxiety due to high speaking rate.")
             
         if not analysis: # If there is still no analysis, assume normal
