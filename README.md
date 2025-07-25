@@ -9,7 +9,7 @@ This script extracts basic voice features from a recording in order to analyse a
 
 ## Installation
 
-In order for the script to run, the modules listed in ![requirements.txt](requirements.txt) must be installed. It is recommened to install the required modules in a virtual environment
+In order for the script to run, the modules listed in [requirements.txt](requirements.txt) must be installed. It is recommened to install the required modules in a virtual environment
 
 ```bash
 python -m pip install librosa numpy reducenoise
