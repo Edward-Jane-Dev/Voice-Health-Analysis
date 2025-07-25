@@ -3,6 +3,7 @@ import librosa
 import sys
 import json
 import numpy as np
+import noisereduce as nr
 
 
 
@@ -59,6 +60,10 @@ def analyze_voice(audio_file):
         y, sr = librosa.load(audio_file, sr=None)
         print("Audio file loaded successfully.")
 
+        # Reduce noise
+        noise_clip = y[:int(sr * 0.5)]  # Use the first 0.5 seconds of the audio file to extract noise profile
+        y = nr.reduce_noise(y, sr=sr, y_noise=noise_clip)
+
         # Extract features
         pitch = extract_pitch(y, sr)
         energy = extract_energy(y)
@@ -83,16 +88,31 @@ def analyze_voice(audio_file):
 
         analysis = []
 
+        # Analyze the features and provide health indicators
         if pitch < 85 and energy < 0.01:
             analysis.append("The voice indicates a strong possibility of fatigue or depression due to low pitch and energy levels.")
 
         elif pitch > 250 and energy > 0.1:
             analysis.append("The voice indicates a strong possibility of excitement or anxiety due to high pitch and energy levels.")
 
-        if speaking_rate > 220 and energy < 0.02:
+        elif speaking_rate > 220 and energy < 0.02:
             analysis.append("The voice indicates a strong possibility of anxiety or stress due to high speaking rate and low energy.")
-
-        if not analysis:
+        
+        if not analysis: # If no specific analysis was made, check individual features
+            if pitch < 85:
+                analysis.append("The voice indicates possible fatigue or depression due to low pitch.")
+            if pitch > 250:
+                analysis.append("The voice indicates possible excitement or anxiety due to high pitch.")
+            if energy < 0.01:
+                analysis.append("The voice indicates possible fatigue or lack of engagement due to low energy.")
+            if energy > 0.1:
+                analysis.append("The voice indicates possible excitement or engagement due to high energy levels.")
+            if speaking_rate < 120:
+                analysis.append("The voice indicates possible boredom or fatigue due to low speaking rate.")
+            if speaking_rate > 220:
+                analysis.append("The voice indicates possible excitement or anxiety due to high speaking rate.")
+            
+        if not analysis: # If there is still no analysis, assume normal
             analysis.append("The voice does not indicate any significant health concerns based on the analyzed features.")
 
         # Prepare the result
