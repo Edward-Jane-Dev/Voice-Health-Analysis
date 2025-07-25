@@ -22,16 +22,34 @@ def extract_pitch(y, sr):
     return float(np.median(pitch_values)) if pitch_values else None
 
 def extract_energy(y):
-    """Calculate the energy of the audio signal. Use the RMS energy formula."""
+    """
+    Calculate the energy of the audio signal. 
+    Use the RMS energy formula.
+    """
     energy = np.sum(y**2) / len(y)
     return float(energy)
 
 def extract_speaking_rate(y, sr):
-    """Calculate the speaking rate in words per minute. Uses onset detection to estimate the start of syllables."""
+    """
+    Calculate the speaking rate in words per minute. 
+    Uses 80th percentile of smoothed onset envelope to estimate the start of syllables. 
+    Filters out closely spaced peaks.
+    """
     onset_env = librosa.onset.onset_strength(y=y, sr=sr)
-    peaks = librosa.onset.onset_detect(onset_envelope=onset_env, sr=sr, units='time')
+    onset_env_smooth = np.convolve(onset_env, np.ones(5)/5, mode='same')
+
+    threshold = np.percentile(onset_env_smooth, 80)
+    peaks = np.where(onset_env_smooth > threshold)[0]
+
+    min_separation = int(0.08 * sr / 512)
+    filtered_peaks = []
+    last_peak = -min_separation
+    for p in peaks:
+        if p - last_peak >= min_separation:
+            filtered_peaks.append(p)
+            last_peak = p
     duration_seconds = len(y) / sr
-    speaking_rate = len(peaks) / duration_seconds * 60 # peaks per minute
+    speaking_rate = len(filtered_peaks) / duration_seconds * 60 # peaks per minute
     return float(speaking_rate)
 
 def analyze_voice(audio_file):
