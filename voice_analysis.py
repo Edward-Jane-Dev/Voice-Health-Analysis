@@ -11,11 +11,13 @@ def extract_pitch(y, sr):
     """Estimate the pitch of the audio signal using librosa piptrack."""
     pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
     pitch_values = []
+    magnitude_threshold = np.percentile(magnitudes, 75)  # filter out low magnitude pitches
+    magnitudes = np.where(magnitudes < magnitude_threshold, 0, magnitudes)
     for i in range(pitches.shape[1]):
         # Get the pitch with the highest magnitude
         index = magnitudes[:, i].argmax()
         pitch = pitches[index, i]
-        if 50 < pitch < 400: # typical human voice range
+        if 50 < pitch < 300: # typical human voice range
             pitch_values.append(pitch)
     return float(np.median(pitch_values)) if pitch_values else None
 
